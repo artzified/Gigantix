@@ -1,0 +1,11 @@
+{
+  "name": "gigantix-dev",
+  "tree": {
+	"$className": "DataModel",
+    "ReplicatedStorage": {
+      "Gigantix": {
+        "$path": "src"
+      }
+    }
+  }
+}
