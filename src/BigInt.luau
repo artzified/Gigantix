@@ -171,7 +171,8 @@ function Static.fromScientific(str: string): BigInt
 	]]
     local signStr, mantissaIntStr, mantissaFracStr, expStr = str:match("^([%+%-]?)(%d*)%.?(%d+)[eE]([%+%-]?%d+)$")
 
-    assert(mantissaIntStr or mantissaFracStr, `[Gigantix | BigInt] Invalid mantissa in scientific notation: {str}`)
+    assert(mantissaIntStr, `[Gigantix | BigInt] Invalid mantissa in scientific notation: {str}`)
+	assert(mantissaFracStr, `[Gigantix | BigInt] Invalid mantissa in scientific notation: {str}`)
     assert(expStr, `[Gigantix | BigInt] Invalid exponent in scientific notation: {str}`)
 
 	local sign = if signStr == '-' then -1 else 1
