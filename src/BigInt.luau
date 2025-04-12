@@ -30,31 +30,6 @@ end
     Propagate carries to make sure each chunk doesn't exceed BASE-1
     @internal
 ]]
-local function mutNormalize(chunks: Chunks)
-	local carry = 0
-
-    for i = 1, #chunks do
-		local total = (chunks[i] or 0) + carry
-		chunks[i] = total % BASE
-		carry = total // BASE
-	end
-
-	while carry > 0 do
-		table.insert(chunks, carry % BASE)
-		carry = carry // BASE
-	end
-
-    if #chunks == 0 then
-		chunks[1] = 0
-	end
-
-	return chunks
-end
-
---[[
-    Propagate carries to make sure each chunk doesn't exceed BASE-1
-    @internal
-]]
 local function mutPrune(chunks: Chunks)
 	while #chunks > 1 and chunks[#chunks] == 0 do
         table.remove(chunks)
