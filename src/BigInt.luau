@@ -102,10 +102,10 @@ end
 --[[
    Constructs a new BigInt object from chunks and sign
 ]]
-function Static.new(chunks: Chunks, sign: number)
+function Static.new(chunks: Chunks, sign: number?)
 	local self = setmetatable({
 		chunks = mutNormalizeAndPrune(table.clone(chunks)),
-		sign = sign,
+		sign = sign or 1,
 	}, BigIntMT)
 
 	return self
@@ -199,7 +199,7 @@ end
    Constructs a new zero BigInt object
 ]]
 function Static.zero()
-    return Static.new({0}, 1)
+    return Static.new({0})
 end
 
 --[[
