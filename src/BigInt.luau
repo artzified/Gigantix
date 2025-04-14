@@ -1,3 +1,5 @@
+--!native
+--!optimize 2
 local Static = {}
 local BigInt = { __type = 'BigInt' }
 local BigIntMT = { __index = BigInt }
