@@ -50,7 +50,7 @@ local function mutNormalizeAndPrune(chunks: Chunks)
 	local n = #chunks
 
 	while cI <= n or carry > 0 do
-		local current = (if cI <= n then chunks[cI] else 0) + carry
+		local current = (chunks[cI] or 0) + carry
 		local newVal = current % BASE
 		carry = current // BASE
 
