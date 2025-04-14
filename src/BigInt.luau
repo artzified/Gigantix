@@ -2,8 +2,8 @@ local Static = {}
 local BigInt = { __type = 'BigInt' }
 local BigIntMT = { __index = BigInt }
 
-local BASE = 128
-local KARATSUBA_TRESHOLD = 1e3 -- in chunks
+local BASE = 2^32
+local KARATSUBA_TRESHOLD = 2 -- in chunks
 
 local BASE_BIGINT: BigInt
 
