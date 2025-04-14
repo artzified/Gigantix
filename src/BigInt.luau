@@ -182,10 +182,11 @@ end
 function Static.fromScientific(str: string): BigInt
 	--[[
 		^[%+%-]? = at the start, get the sign (if no sign is found, then assume its positive)
-		%d*%.?%d+ = get the fractional (or integer) mantissa, integer part could be ommited such as .1, .05, etc...
+		(%d*)%.?(%d+) = get the fractional (or integer) mantissa, integer part could be ommited such as .1, .05, etc...
 		[eE] = matches e or E (as in 1e10 or 1E10)
+		([%+%-]?%d+)$ = get the exponent
 	]]
-    local signStr, mantissaIntStr, mantissaFracStr, expStr = str:match("^([%+%-]?)(%d*)%.?(%d+)[eE]([%+%-]?%d+)$")
+    local signStr, mantissaIntStr, mantissaFracStr, expStr = str:match('^([%+%-]?)(%d*)%.?(%d+)[eE]([%+%-]?%d+)$')
 
     assert(mantissaIntStr, `[Gigantix | BigInt] Invalid mantissa in scientific notation: {str}`)
 	assert(mantissaFracStr, `[Gigantix | BigInt] Invalid mantissa in scientific notation: {str}`)
