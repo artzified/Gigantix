@@ -203,7 +203,7 @@ function Static.fromScientific(str: string): BigInt
     result.sign = sign
 
     local effectiveShift = exponent - fracCount
-    assert(effectiveShift >= Static.zero(), "[Gigantix | BigInt] Fractional values (negative effective exponent) not supported.")
+    assert(effectiveShift >= Static.zero(), '[Gigantix | BigInt] Fractional values (negative effective exponent) not supported.')
 
 	-- blame roblox type solver for this
     local multiplier = Static.ten() ^ effectiveShift
@@ -242,6 +242,81 @@ function BigInt.clone(self: BigInt): BigInt
 	return Static.new(table.clone(self.chunks), self.sign)
 end
 
+function BigInt.digitCount(self: BigInt): number
+    -- Assume self is normalized.
+    local last = self.chunks[#self.chunks]
+    -- Compute the number of digits that each chunk can represent in decimal.
+    local chunkDigits = LOG_BASE / LOG_TEN
+    local lastDigits = #tostring(last)
+    return (#self.chunks - 1) * chunkDigits + lastDigits
+end
+
+function BigIntMT.__tostring(self: BigInt): string
+	return self:toScientificNotation()
+end
+
+function BigInt.toDecimalString(self: BigInt): string
+	if self == Static.zero() then return "0" end
+
+	local blockDivisor = Static.fromInt(blockFactor)  -- BigInt representing 10^k
+
+    local parts = {}
+    local temp = self:clone()
+
+    -- Process the BigInt in blocks.
+    while temp ~= Static.zero() do
+        local quotient, remainder = temp:divMod(blockDivisor)
+		assert(#remainder.chunks == 1, '[Gigantix | BigInt] Remainder is not a single chunk, try inceasing the base!')
+        table.insert(parts, 1, tostring(remainder.chunks[1])) -- insert big-endian wise
+        temp = quotient
+    end
+
+    -- Format: first part as is, subsequent parts padded to blockDigits length.
+    local outputParts = {}
+    for i = 1, #parts do
+        if i == 1 then
+            outputParts[i] = parts[i]
+        else
+            outputParts[i] = string.format(`%0{digitsCount}d`, tonumber(parts[i]))
+        end
+    end
+
+    local str = table.concat(outputParts)
+    if self.sign < 0 then
+        str = "-" .. str
+    end
+
+    return str
+end
+
+function BigInt.toScientificNotation(self: BigInt): string
+    -- Get the full decimal string via your __tostring function.
+    local s = self:toDecimalString()
+    if s == '0' then
+        return '0'
+    end
+
+	local signStr, firstDigit, rest = s:match('^([%+%-]?)(%d)(%d*)')
+
+	assert(firstDigit, `[Gigantix | BigInt] Invalid decimal`)
+
+    -- The total number of digits; exponent will be (#s - 1)
+    local exponent = #s - 1
+
+    -- Remove any trailing zeros from the fractional part.
+    rest = (rest or ''):gsub('0+$', '')
+
+    -- If the rest is empty, we display just the first digit and exponent.
+    local notation
+    if rest ~= '' then
+        notation = string.format('%s%s.%se+%d', signStr or '', firstDigit, rest or '', exponent)
+    else
+        notation = string.format('%s%se+%d', signStr or '', firstDigit, exponent)
+    end
+
+    return notation
+end
+
 --[[
    Gets the multiplication product of 2 BigInts using the grade-school algorithm (or long multiplication)
 ]]
@@ -266,6 +341,7 @@ function BigInt.gradeMultiply(self: BigInt, b: BigInt)
 	return Static.new(result, self.sign * b.sign)
 end
 
+-- TODO: FIX THIS
 function BigInt.iterativeKaratsuba(self: BigInt, b: BigInt)
 	local A = pad(self.chunks)
 	local B = pad(b.chunks)
@@ -361,7 +437,7 @@ function BigInt.divMod(self: BigInt, b: BigIntOptional): (BigInt, BigInt)
 	end
 
 	-- Normalize so that most significant digit of divisor >= BASE // 2
-	local d = math.floor(BASE / (absDivisor.chunks[n] + 1))
+	local d = BASE // (absDivisor.chunks[n] + 1)
 
 	local function mulByInt(chunks: Chunks, k: number)
 		local result = {}
@@ -393,7 +469,7 @@ function BigInt.divMod(self: BigInt, b: BigIntOptional): (BigInt, BigInt)
 		local numerator = uj_n1 * BASE + uj_n0
 		local v_n1 = V[n] or 1
 
-		local qhat = math.floor(numerator / v_n1)
+		local qhat = numerator // v_n1
 		if qhat >= BASE then qhat = BASE - 1 end
 
 		-- Multiply and subtract
@@ -437,7 +513,7 @@ function BigInt.divMod(self: BigInt, b: BigIntOptional): (BigInt, BigInt)
 		local carry = 0
 		for i = #chunks, 1, -1 do
 			local num = carry * BASE + chunks[i]
-			local q = math.floor(num / k)
+			local q = num // k
 			carry = num % k
 			result[i] = q
 		end
