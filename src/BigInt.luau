@@ -10,6 +10,18 @@ local BASE_BIGINT: BigInt
 type Chunks = {number}
 type BigIntOptional = BigInt | number | string
 
+local function computeDecimalBlockSize(b)
+    local factor = 1
+    local digits = 0
+    while factor * 10 < b do
+        factor *= 10
+        digits += 1
+    end
+    return factor, digits
+end
+
+local blockFactor, digitsCount = computeDecimalBlockSize(BASE)
+
 --[[
     Converts `a` to BigInt when appropriate
     @internal
