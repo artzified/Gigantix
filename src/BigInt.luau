@@ -164,12 +164,13 @@ function Static.fromDecimal(str: string): BigInt
 	assert(decimalStr, `[Gigantix | BigInt] Invalid decimal string: {str}`)
 
 	local result = Static.zero()
+	local ten = Static.ten()
 
 	for i = 1, #decimalStr do
 		local digit = tonumber(decimalStr:sub(i, i))
 		assert(digit ~= nil, `[Gigantix | BigInt] Invalid digit at position {i}: {str:sub(i, i)}`)
 
-		result = result * Static.ten() + Static.fromInt(digit)
+		result = result * ten + Static.fromInt(digit)
 	end
 
 	local sign = if signStr == '-' then -1 else 1
