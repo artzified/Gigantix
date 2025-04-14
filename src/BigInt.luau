@@ -6,6 +6,7 @@ local BASE = 2^32
 local KARATSUBA_TRESHOLD = 2 -- in chunks
 
 local BASE_BIGINT: BigInt
+local LOG_BASE, LOG_TEN = math.log(BASE), math.log(10)
 
 type Chunks = {number}
 type BigIntOptional = BigInt | number | string
